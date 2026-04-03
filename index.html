@@ -1,0 +1,1263 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeoMessenger</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111823;
+      --panel2:#151f2c;
+      --line:#243244;
+      --text:#e8eef7;
+      --muted:#93a4b8;
+      --accent:#4da3ff;
+      --accent2:#2f7fe0;
+      --danger:#ff5b6b;
+      --ok:#33d17a;
+      --bubbleMe:#1f6feb;
+      --bubbleThem:#1a2432;
+      --shadow: 0 12px 30px rgba(0,0,0,.28);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#081018,#0b0f14 25%,#0b0f14);
+      color:var(--text);
+      min-height:100vh;
+    }
+    button,input{
+      font:inherit;
+    }
+    button{
+      border:0;
+      border-radius:12px;
+      padding:12px 14px;
+      cursor:pointer;
+      background:var(--panel2);
+      color:var(--text);
+    }
+    button.primary{background:var(--accent); color:#081018; font-weight:700}
+    button.primary:hover{background:var(--accent2)}
+    button.danger{background:var(--danger); color:white; font-weight:700}
+    button.ghost{background:transparent; border:1px solid var(--line)}
+    input{
+      width:100%;
+      border:1px solid var(--line);
+      background:#0d141d;
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:12px;
+      outline:none;
+    }
+    input:focus{border-color:var(--accent)}
+    .wrap{
+      display:grid;
+      grid-template-columns:340px 1fr;
+      height:100vh;
+    }
+    .sidebar{
+      border-right:1px solid var(--line);
+      background:rgba(10,15,22,.92);
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .main{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .card{
+      background:rgba(17,24,35,.96);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .authShell{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+    .authCard{
+      width:min(960px,100%);
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:0;
+      overflow:hidden;
+    }
+    .authLeft{
+      padding:28px;
+      background:linear-gradient(180deg, rgba(77,163,255,.16), rgba(77,163,255,.02));
+      border-right:1px solid var(--line);
+    }
+    .authRight{
+      padding:28px;
+    }
+    .brand{
+      font-size:30px;
+      font-weight:900;
+      margin:0 0 10px;
+    }
+    .sub{
+      color:var(--muted);
+      line-height:1.5;
+      margin:0 0 20px;
+    }
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .tabs button{
+      flex:1;
+      background:#0d141d;
+      border:1px solid var(--line);
+    }
+    .tabs button.active{
+      background:var(--accent);
+      color:#081018;
+      font-weight:700;
+      border-color:transparent;
+    }
+    .formGrid{
+      display:grid;
+      gap:12px;
+    }
+    .stack{display:grid; gap:10px}
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .divider{
+      height:1px;
+      background:var(--line);
+      margin:16px 0;
+    }
+    .topbar{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      justify-content:space-between;
+      background:rgba(17,24,35,.96);
+    }
+    .topbar h2{
+      margin:0;
+      font-size:18px;
+    }
+    .topbar .meta{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .sidebarHead{
+      padding:16px;
+      border-bottom:1px solid var(--line);
+      display:grid;
+      gap:12px;
+    }
+    .profileBox{
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(21,31,44,.8);
+    }
+    .profileName{
+      font-weight:800;
+      font-size:16px;
+      margin-bottom:4px;
+    }
+    .profileMail{
+      color:var(--muted);
+      font-size:12px;
+      word-break:break-word;
+    }
+    .searchRow{
+      display:flex;
+      gap:10px;
+    }
+    .searchRow input{flex:1}
+    .chatList{
+      padding:10px;
+      overflow:auto;
+      flex:1;
+    }
+    .chatItem{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid transparent;
+      background:transparent;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      cursor:pointer;
+      margin-bottom:8px;
+    }
+    .chatItem:hover{
+      background:rgba(255,255,255,.03);
+      border-color:var(--line);
+    }
+    .chatItem.active{
+      background:rgba(77,163,255,.12);
+      border-color:rgba(77,163,255,.35);
+    }
+    .chatTitle{
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    .chatPreview{
+      color:var(--muted);
+      font-size:12px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width:220px;
+    }
+    .chatTime{
+      color:var(--muted);
+      font-size:11px;
+      white-space:nowrap;
+      padding-top:2px;
+    }
+    .chatPane{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+      height:100%;
+    }
+    .messages{
+      flex:1;
+      overflow:auto;
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      background:
+        radial-gradient(circle at top left, rgba(77,163,255,.08), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(77,163,255,.05), transparent 25%);
+    }
+    .msgRow{
+      display:flex;
+    }
+    .msgRow.me{justify-content:flex-end}
+    .bubble{
+      max-width:min(680px,82%);
+      padding:12px 14px;
+      border-radius:16px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+      border:1px solid rgba(255,255,255,.05);
+    }
+    .msgRow.me .bubble{background:var(--bubbleMe); color:white; border-bottom-right-radius:4px}
+    .msgRow.them .bubble{background:var(--bubbleThem); color:var(--text); border-bottom-left-radius:4px}
+    .bubbleMeta{
+      margin-top:6px;
+      font-size:11px;
+      color:rgba(255,255,255,.7);
+    }
+    .composer{
+      padding:14px;
+      border-top:1px solid var(--line);
+      display:flex;
+      gap:10px;
+      background:rgba(17,24,35,.96);
+    }
+    .composer input{flex:1}
+    .callBtn{
+      min-width:118px;
+      background:rgba(77,163,255,.15);
+      color:var(--text);
+      border:1px solid rgba(77,163,255,.35);
+    }
+    .callOverlay{
+      position:fixed;
+      inset:0;
+      background:rgba(3,7,12,.92);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:18px;
+    }
+    .callOverlay.show{display:flex}
+    .callCard{
+      width:min(1100px,100%);
+      padding:16px;
+      display:grid;
+      gap:14px;
+    }
+    .callTop{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+    }
+    .videoGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    video{
+      width:100%;
+      aspect-ratio:16/10;
+      background:#000;
+      border-radius:16px;
+      border:1px solid var(--line);
+      object-fit:cover;
+    }
+    .callActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .incoming{
+      position:fixed;
+      left:16px;
+      bottom:16px;
+      z-index:60;
+      width:min(380px,calc(100vw - 32px));
+      padding:14px;
+      display:none;
+    }
+    .incoming.show{display:block}
+    .incoming h3{margin:0 0 6px; font-size:16px}
+    .incoming p{margin:0 0 12px; color:var(--muted)}
+    .hide{display:none !important}
+    @media (max-width: 900px){
+      .wrap{grid-template-columns:1fr}
+      .sidebar{display:none}
+      .authCard{grid-template-columns:1fr}
+      .authLeft{border-right:0; border-bottom:1px solid var(--line)}
+      .videoGrid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div id="authShell" class="authShell">
+    <div class="authCard card">
+      <div class="authLeft">
+        <h1 class="brand">NeoMessenger</h1>
+        <p class="sub">
+          Чат, поиск по уникальному юзернейму и WebRTC-звонки на одном статическом сайте.
+        </p>
+        <div class="profileBox">
+          <div class="profileName">Что умеет</div>
+          <div class="small">
+            • Регистрация email/password<br>
+            • Вход через Google<br>
+            • Уникальный username<br>
+            • Поиск пользователя по username<br>
+            • Личные чаты и звонки
+          </div>
+        </div>
+      </div>
+
+      <div class="authRight">
+        <div class="tabs">
+          <button id="tabLogin" class="active">Вход</button>
+          <button id="tabRegister">Регистрация</button>
+        </div>
+
+        <div id="loginPane" class="formGrid">
+          <input id="loginEmail" type="email" placeholder="Email" />
+          <input id="loginPassword" type="password" placeholder="Пароль" />
+          <button id="btnLogin" class="primary">Войти</button>
+          <button id="btnGoogle" class="ghost">Войти через Google</button>
+        </div>
+
+        <div id="registerPane" class="formGrid hide">
+          <input id="regEmail" type="email" placeholder="Email" />
+          <input id="regPassword" type="password" placeholder="Пароль" />
+          <input id="regUsername" type="text" placeholder="Уникальный username (a-z, 0-9, _)" />
+          <button id="btnRegister" class="primary">Создать аккаунт</button>
+          <button id="btnGoogle2" class="ghost">Зарегистрироваться через Google</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="setupProfileBox" class="formGrid hide">
+          <div style="font-weight:800">Нужно придумать username</div>
+          <input id="setupUsername" type="text" placeholder="username" />
+          <button id="btnSetupUsername" class="primary">Сохранить username</button>
+          <div class="small">После Google-входа username нужно создать один раз.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="appShell" class="wrap hide">
+    <aside class="sidebar">
+      <div class="sidebarHead">
+        <div class="profileBox">
+          <div id="myName" class="profileName">—</div>
+          <div id="myMail" class="profileMail">—</div>
+        </div>
+
+        <div class="searchRow">
+          <input id="searchUsername" type="text" placeholder="Найти по username" />
+          <button id="btnSearch" class="primary">Найти</button>
+        </div>
+
+        <button id="btnLogout" class="danger">Выйти</button>
+      </div>
+
+      <div id="chatList" class="chatList"></div>
+    </aside>
+
+    <main class="main chatPane">
+      <div class="topbar">
+        <div>
+          <h2 id="chatHeaderTitle">Выбери чат</h2>
+          <div id="chatHeaderMeta" class="meta">Поиск по username справа</div>
+        </div>
+        <div class="callActions">
+          <button id="btnCall" class="callBtn">Позвонить</button>
+        </div>
+      </div>
+
+      <div id="messages" class="messages"></div>
+
+      <div class="composer">
+        <input id="messageInput" type="text" placeholder="Написать сообщение..." />
+        <button id="btnSend" class="primary">Отправить</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="incomingCall" class="incoming card">
+    <h3>Входящий звонок</h3>
+    <p id="incomingText">—</p>
+    <div class="callActions">
+      <button id="btnDecline" class="danger">Отклонить</button>
+      <button id="btnAnswer" class="primary">Ответить</button>
+    </div>
+  </div>
+
+  <div id="callOverlay" class="callOverlay">
+    <div class="callCard card">
+      <div class="callTop">
+        <div>
+          <div id="callTitle" style="font-size:18px;font-weight:800">Звонок</div>
+          <div id="callState" class="small">Подключение...</div>
+        </div>
+        <div class="callActions">
+          <button id="btnHangup" class="danger">Завершить</button>
+        </div>
+      </div>
+
+      <div class="videoGrid">
+        <div>
+          <div class="small" style="margin:0 0 8px">Твоя камера/микрофон</div>
+          <video id="localVideo" autoplay playsinline muted></video>
+        </div>
+        <div>
+          <div class="small" style="margin:0 0 8px">Собеседник</div>
+          <video id="remoteVideo" autoplay playsinline></video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      runTransaction,
+      collection,
+      addDoc,
+      query,
+      where,
+      orderBy,
+      limit,
+      onSnapshot,
+      serverTimestamp,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+   const firebaseConfig = {
+  apiKey: "AIzaSyATSubLFyQuItEzMfW50X_05yPcJKCfXZM",
+  authDomain: "nova-prospect-chat-2-1cb83.firebaseapp.com",
+  projectId: "nova-prospect-chat-2-1cb83",
+  storageBucket: "nova-prospect-chat-2-1cb83.firebasestorage.app",
+  messagingSenderId: "460219250813",
+  appId: "1:460219250813:web:9043a9ae9b76d077b19914"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: "select_account" });
+
+    const $ = (id) => document.getElementById(id);
+
+    const authShell = $("authShell");
+    const appShell = $("appShell");
+    const setupProfileBox = $("setupProfileBox");
+
+    const tabLogin = $("tabLogin");
+    const tabRegister = $("tabRegister");
+    const loginPane = $("loginPane");
+    const registerPane = $("registerPane");
+
+    const loginEmail = $("loginEmail");
+    const loginPassword = $("loginPassword");
+    const regEmail = $("regEmail");
+    const regPassword = $("regPassword");
+    const regUsername = $("regUsername");
+    const setupUsername = $("setupUsername");
+
+    const btnLogin = $("btnLogin");
+    const btnRegister = $("btnRegister");
+    const btnGoogle = $("btnGoogle");
+    const btnGoogle2 = $("btnGoogle2");
+    const btnSetupUsername = $("btnSetupUsername");
+
+    const myName = $("myName");
+    const myMail = $("myMail");
+    const btnLogout = $("btnLogout");
+    const searchUsername = $("searchUsername");
+    const btnSearch = $("btnSearch");
+
+    const chatList = $("chatList");
+    const chatHeaderTitle = $("chatHeaderTitle");
+    const chatHeaderMeta = $("chatHeaderMeta");
+    const messagesEl = $("messages");
+    const messageInput = $("messageInput");
+    const btnSend = $("btnSend");
+    const btnCall = $("btnCall");
+
+    const incomingCallEl = $("incomingCall");
+    const incomingText = $("incomingText");
+    const btnAnswer = $("btnAnswer");
+    const btnDecline = $("btnDecline");
+
+    const callOverlay = $("callOverlay");
+    const callTitle = $("callTitle");
+    const callState = $("callState");
+    const btnHangup = $("btnHangup");
+    const localVideo = $("localVideo");
+    const remoteVideo = $("remoteVideo");
+
+    let currentUser = null;
+    let myProfile = null;
+    let chats = [];
+    let activeChat = null;
+    let activeChatId = null;
+    let activeChatUnsub = null;
+    let messagesUnsub = null;
+    let callUnsub = null;
+    let offerCandUnsub = null;
+    let answerCandUnsub = null;
+    let pc = null;
+    let localStream = null;
+    let remoteStream = null;
+    let currentCallRef = null;
+    let currentCallRole = null; // caller | callee | null
+    let incomingCallData = null;
+    const profileCache = new Map();
+
+    function validUsername(username) {
+      return /^[a-z0-9_]{3,20}$/.test(username);
+    }
+
+    function normalizeUsername(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function fmtTime(ts) {
+      try {
+        const d = ts?.toDate ? ts.toDate() : null;
+        if (!d) return "";
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      } catch {
+        return "";
+      }
+    }
+
+    function setAuthMode(mode) {
+      const login = mode === "login";
+      tabLogin.classList.toggle("active", login);
+      tabRegister.classList.toggle("active", !login);
+      loginPane.classList.toggle("hide", !login);
+      registerPane.classList.toggle("hide", login);
+      setupProfileBox.classList.add("hide");
+    }
+
+    tabLogin.onclick = () => setAuthMode("login");
+    tabRegister.onclick = () => setAuthMode("register");
+
+    btnLogin.onclick = async () => {
+      try {
+        await signInWithEmailAndPassword(auth, loginEmail.value.trim(), loginPassword.value);
+      } catch (e) {
+        alert("Ошибка входа: " + e.message);
+      }
+    };
+
+    async function reserveProfile(user, usernameRaw) {
+      const username = normalizeUsername(usernameRaw);
+      if (!validUsername(username)) {
+        throw new Error("username должен быть 3–20 символов: a-z, 0-9, _");
+      }
+
+      const unameRef = doc(db, "usernames", username);
+      const userRef = doc(db, "users", user.uid);
+
+      await runTransaction(db, async (tx) => {
+        const unameSnap = await tx.get(unameRef);
+        if (unameSnap.exists()) {
+          throw new Error("Этот username уже занят");
+        }
+
+        const userSnap = await tx.get(userRef);
+        if (userSnap.exists()) {
+          throw new Error("Профиль уже существует");
+        }
+
+        tx.set(unameRef, {
+          uid: user.uid,
+          createdAt: serverTimestamp()
+        });
+
+        tx.set(userRef, {
+          uid: user.uid,
+          email: user.email || "",
+          username,
+          usernameLower: username,
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          createdAt: serverTimestamp()
+        });
+      });
+    }
+
+    btnRegister.onclick = async () => {
+      try {
+        const email = regEmail.value.trim();
+        const pass = regPassword.value;
+        const username = regUsername.value.trim();
+
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await reserveProfile(cred.user, username);
+      } catch (e) {
+        alert("Ошибка регистрации: " + e.message);
+      }
+    };
+
+    btnGoogle.onclick = async () => {
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (e) {
+        alert("Google-вход не сработал: " + e.message);
+      }
+    };
+
+    btnGoogle2.onclick = btnGoogle.onclick;
+
+    btnSetupUsername.onclick = async () => {
+      try {
+        if (!currentUser) return;
+        await reserveProfile(currentUser, setupUsername.value.trim());
+        setupProfileBox.classList.add("hide");
+      } catch (e) {
+        alert("Не удалось сохранить username: " + e.message);
+      }
+    };
+
+    btnLogout.onclick = async () => {
+      await cleanupCall(false);
+      await signOut(auth);
+    };
+
+    async function loadMyProfile(user) {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (!snap.exists()) return null;
+      return snap.data();
+    }
+
+    async function ensureProfileCached(uid) {
+      if (profileCache.has(uid)) return profileCache.get(uid);
+      const snap = await getDoc(doc(db, "users", uid));
+      const data = snap.exists() ? snap.data() : null;
+      profileCache.set(uid, data);
+      return data;
+    }
+
+    function showApp(show) {
+      authShell.classList.toggle("hide", show);
+      appShell.classList.toggle("hide", !show);
+    }
+
+    function getOtherUid(chat) {
+      return chat?.members?.find((u) => u !== currentUser?.uid) || null;
+    }
+
+    function chatIdFor(uid1, uid2) {
+      return [uid1, uid2].sort().join("_");
+    }
+
+    async function openChatWithUid(otherUid, otherUsername = "") {
+      if (!currentUser) return;
+      if (otherUid === currentUser.uid) {
+        alert("Нельзя открыть чат с самим собой");
+        return;
+      }
+
+      const id = chatIdFor(currentUser.uid, otherUid);
+      const chatRef = doc(db, "chats", id);
+      const snap = await getDoc(chatRef);
+
+      if (!snap.exists()) {
+        await setDoc(chatRef, {
+          members: [currentUser.uid, otherUid],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          lastMessage: "",
+          lastSenderId: ""
+        });
+      }
+
+      activeChatId = id;
+      await startChatListeners();
+      activeChat = {
+        id,
+        members: [currentUser.uid, otherUid]
+      };
+
+      const cached = await ensureProfileCached(otherUid);
+      chatHeaderTitle.textContent = cached?.username || otherUsername || otherUid.slice(0, 8);
+      chatHeaderMeta.textContent = `chatId: ${id}`;
+      callTitle.textContent = `Звонок: ${cached?.username || otherUsername || otherUid.slice(0, 8)}`;
+    }
+
+    async function searchAndOpen() {
+      const raw = normalizeUsername(searchUsername.value);
+      if (!validUsername(raw)) {
+        alert("Введите username 3–20 символов: a-z, 0-9, _");
+        return;
+      }
+
+      const unameSnap = await getDoc(doc(db, "usernames", raw));
+      if (!unameSnap.exists()) {
+        alert("Пользователь не найден");
+        return;
+      }
+
+      const otherUid = unameSnap.data().uid;
+      await openChatWithUid(otherUid, raw);
+    }
+
+    btnSearch.onclick = () => searchAndOpen().catch((e) => alert(e.message));
+    searchUsername.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchAndOpen().catch((err) => alert(err.message));
+    });
+
+    async function renderChatList() {
+      chatList.innerHTML = "";
+      const sorted = [...chats].sort((a, b) => {
+        const ta = a.updatedAt?.toMillis?.() || a.createdAt?.toMillis?.() || 0;
+        const tb = b.updatedAt?.toMillis?.() || b.createdAt?.toMillis?.() || 0;
+        return tb - ta;
+      });
+
+      for (const chat of sorted) {
+        const otherUid = getOtherUid(chat);
+        const other = otherUid ? await ensureProfileCached(otherUid) : null;
+        const title = other?.username || otherUid?.slice(0, 8) || "chat";
+        const preview = chat.lastMessage || "Нет сообщений";
+        const time = fmtTime(chat.updatedAt || chat.createdAt);
+
+        const item = document.createElement("div");
+        item.className = "chatItem" + (chat.id === activeChatId ? " active" : "");
+        item.innerHTML = `
+          <div style="min-width:0">
+            <div class="chatTitle">${title}</div>
+            <div class="chatPreview">${preview}</div>
+          </div>
+          <div class="chatTime">${time}</div>
+        `;
+        item.onclick = async () => {
+          activeChatId = chat.id;
+          activeChat = chat;
+          const otherProfile = otherUid ? await ensureProfileCached(otherUid) : null;
+          chatHeaderTitle.textContent = otherProfile?.username || title;
+          chatHeaderMeta.textContent = `chatId: ${chat.id}`;
+          callTitle.textContent = `Звонок: ${otherProfile?.username || title}`;
+          await startChatListeners();
+          renderChatList();
+        };
+        chatList.appendChild(item);
+      }
+    }
+
+    async function startChatListeners() {
+      if (activeChatUnsub) activeChatUnsub();
+      if (messagesUnsub) messagesUnsub();
+      if (callUnsub) callUnsub();
+      cleanupPeer(false);
+
+      messagesEl.innerHTML = "";
+      incomingCallEl.classList.remove("show");
+      incomingCallData = null;
+
+      if (!activeChatId) return;
+
+      activeChatUnsub = onSnapshot(
+        query(collection(db, "chats"), where("members", "array-contains", currentUser.uid)),
+        async (snap) => {
+          chats = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          await renderChatList();
+        }
+      );
+
+      messagesUnsub = onSnapshot(
+        query(collection(db, "chats", activeChatId, "messages"), orderBy("createdAt", "asc"), limit(200)),
+        async (snap) => {
+          messagesEl.innerHTML = "";
+          for (const d of snap.docs) {
+            const m = d.data();
+            const row = document.createElement("div");
+            row.className = "msgRow " + (m.senderId === currentUser.uid ? "me" : "them");
+            row.innerHTML = `
+              <div class="bubble">
+                ${escapeHtml(m.text)}
+                <div class="bubbleMeta">${m.senderId === currentUser.uid ? "Ты" : "Он/она"} • ${fmtTime(m.createdAt)}</div>
+              </div>
+            `;
+            messagesEl.appendChild(row);
+          }
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+      );
+
+      callUnsub = onSnapshot(doc(db, "calls", activeChatId), async (snap) => {
+        if (!snap.exists()) {
+          incomingCallEl.classList.remove("show");
+          return;
+        }
+
+        const data = snap.data();
+        const isMember = data.members?.includes(currentUser.uid);
+        if (!isMember) return;
+
+        if (data.status === "ended" || data.status === "declined") {
+          if (currentCallRef && currentCallRef.id === activeChatId) {
+            await cleanupCall(false);
+          }
+          incomingCallEl.classList.remove("show");
+          return;
+        }
+
+        if (
+          data.status === "ringing" &&
+          data.callerId !== currentUser.uid &&
+          !pc &&
+          !currentCallRef
+        ) {
+          incomingCallData = data;
+          const otherUid = data.callerId;
+          const other = await ensureProfileCached(otherUid);
+          incomingText.textContent = `Звонит ${other?.username || otherUid.slice(0, 8)}`;
+          incomingCallEl.classList.add("show");
+        } else if (data.status === "in-call" && currentCallRef?.id === activeChatId) {
+          incomingCallEl.classList.remove("show");
+        }
+      });
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    btnSend.onclick = async () => {
+      try {
+        const text = messageInput.value.trim();
+        if (!text || !activeChatId) return;
+        const chatRef = doc(db, "chats", activeChatId);
+        await addDoc(collection(db, "chats", activeChatId, "messages"), {
+          senderId: currentUser.uid,
+          text,
+          type: "text",
+          createdAt: serverTimestamp()
+        });
+        await updateDoc(chatRef, {
+          lastMessage: text.slice(0, 120),
+          lastSenderId: currentUser.uid,
+          updatedAt: serverTimestamp()
+        });
+        messageInput.value = "";
+      } catch (e) {
+        alert("Не удалось отправить сообщение: " + e.message);
+      }
+    };
+
+    messageInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") btnSend.click();
+    });
+
+    async function ensureMedia() {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      localStream = stream;
+      localVideo.srcObject = stream;
+      return stream;
+    }
+
+    function createPeer() {
+      pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      remoteStream = new MediaStream();
+      remoteVideo.srcObject = remoteStream;
+
+      pc.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
+      };
+
+      pc.onconnectionstatechange = () => {
+        callState.textContent = `Состояние: ${pc.connectionState}`;
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        callState.textContent = `ICE: ${pc.iceConnectionState}`;
+      };
+
+      localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    }
+
+    async function watchRemoteCandidates(role) {
+      if (role === "caller") {
+        if (answerCandUnsub) answerCandUnsub();
+        answerCandUnsub = onSnapshot(collection(db, "calls", activeCallId(), "answerCandidates"), async (snap) => {
+          for (const ch of snap.docChanges()) {
+            if (ch.type === "added" && pc && pc.remoteDescription) {
+              try {
+                await pc.addIceCandidate(ch.doc.data().candidate);
+              } catch (e) {
+                console.warn(e);
+              }
+            }
+          }
+        });
+      } else {
+        if (offerCandUnsub) offerCandUnsub();
+        offerCandUnsub = onSnapshot(collection(db, "calls", activeCallId(), "offerCandidates"), async (snap) => {
+          for (const ch of snap.docChanges()) {
+            if (ch.type === "added" && pc && pc.remoteDescription) {
+              try {
+                await pc.addIceCandidate(ch.doc.data().candidate);
+              } catch (e) {
+                console.warn(e);
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function activeCallId() {
+      return currentCallRef?.id || activeChatId;
+    }
+
+    async function startOutgoingCall() {
+      if (!activeChatId || !activeChat) {
+        alert("Сначала открой чат");
+        return;
+      }
+
+      const otherUid = getOtherUid(activeChat);
+      if (!otherUid) return;
+
+      const callRef = doc(db, "calls", activeChatId);
+      const existing = await getDoc(callRef);
+      if (existing.exists() && ["ringing", "in-call"].includes(existing.data().status)) {
+        alert("Этот чат уже в звонке");
+        return;
+      }
+
+      await ensureMedia();
+      createPeer();
+      currentCallRef = callRef;
+      currentCallRole = "caller";
+      callOverlay.classList.add("show");
+      callState.textContent = "Создание звонка...";
+
+      pc.onicecandidate = async (event) => {
+        if (event.candidate) {
+          await addDoc(collection(db, "calls", activeChatId, "offerCandidates"), {
+            candidate: event.candidate.toJSON()
+          });
+        }
+      };
+
+      await setDoc(callRef, {
+        members: activeChat.members,
+        callerId: currentUser.uid,
+        calleeId: otherUid,
+        offer: null,
+        answer: null,
+        status: "ringing",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await updateDoc(callRef, {
+        offer: {
+          type: offer.type,
+          sdp: offer.sdp
+        },
+        updatedAt: serverTimestamp()
+      });
+
+      await watchRemoteCandidates("caller");
+
+      const unsub = onSnapshot(callRef, async (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
+        if (data.answer && pc && !pc.currentRemoteDescription) {
+          try {
+            await pc.setRemoteDescription(data.answer);
+            callState.textContent = "Звонок подключается...";
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+        if (data.status === "in-call") {
+          callState.textContent = "В разговоре";
+        }
+        if (data.status === "ended" || data.status === "declined") {
+          await cleanupCall(false);
+        }
+      });
+
+      callUnsub = () => {
+        unsub();
+      };
+    }
+
+    async function answerIncomingCall() {
+      if (!incomingCallData || !activeChatId) return;
+
+      const callRef = doc(db, "calls", activeChatId);
+      currentCallRef = callRef;
+      currentCallRole = "callee";
+      incomingCallEl.classList.remove("show");
+
+      await ensureMedia();
+      createPeer();
+      callOverlay.classList.add("show");
+      callState.textContent = "Ответ на звонок...";
+
+      pc.onicecandidate = async (event) => {
+        if (event.candidate) {
+          await addDoc(collection(db, "calls", activeChatId, "answerCandidates"), {
+            candidate: event.candidate.toJSON()
+          });
+        }
+      };
+
+      await pc.setRemoteDescription(incomingCallData.offer);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      await updateDoc(callRef, {
+        answer: {
+          type: answer.type,
+          sdp: answer.sdp
+        },
+        status: "in-call",
+        updatedAt: serverTimestamp()
+      });
+
+      await watchRemoteCandidates("callee");
+
+      const unsub = onSnapshot(callRef, async (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
+        if (data.status === "ended" || data.status === "declined") {
+          await cleanupCall(false);
+        }
+      });
+
+      callUnsub = () => {
+        unsub();
+      };
+      callState.textContent = "В разговоре";
+    }
+
+    btnCall.onclick = async () => {
+      try {
+        await startOutgoingCall();
+      } catch (e) {
+        alert("Не удалось начать звонок: " + e.message);
+      }
+    };
+
+    btnAnswer.onclick = async () => {
+      try {
+        await answerIncomingCall();
+      } catch (e) {
+        alert("Не удалось ответить: " + e.message);
+      }
+    };
+
+    btnDecline.onclick = async () => {
+      try {
+        if (activeChatId) {
+          await updateDoc(doc(db, "calls", activeChatId), {
+            status: "declined",
+            updatedAt: serverTimestamp()
+          });
+        }
+      } catch {}
+      incomingCallEl.classList.remove("show");
+      incomingCallData = null;
+    };
+
+    btnHangup.onclick = async () => {
+      await endCall("ended");
+    };
+
+    async function endCall(status) {
+      try {
+        if (currentCallRef) {
+          await updateDoc(currentCallRef, {
+            status,
+            updatedAt: serverTimestamp()
+          });
+        }
+      } catch {}
+      await cleanupCall(false);
+    }
+
+    async function cleanupCall(updateStatus = false) {
+      if (offerCandUnsub) {
+        offerCandUnsub();
+        offerCandUnsub = null;
+      }
+      if (answerCandUnsub) {
+        answerCandUnsub();
+        answerCandUnsub = null;
+      }
+
+      if (pc) {
+        try { pc.ontrack = null; } catch {}
+        try { pc.onicecandidate = null; } catch {}
+        try { pc.close(); } catch {}
+        pc = null;
+      }
+
+      if (localStream) {
+        localStream.getTracks().forEach((t) => t.stop());
+        localStream = null;
+      }
+
+      remoteStream = null;
+      localVideo.srcObject = null;
+      remoteVideo.srcObject = null;
+      callOverlay.classList.remove("show");
+      callState.textContent = "Подключение...";
+      currentCallRef = null;
+      currentCallRole = null;
+      incomingCallData = null;
+      incomingCallEl.classList.remove("show");
+
+      if (updateStatus && activeChatId) {
+        try {
+          await updateDoc(doc(db, "calls", activeChatId), {
+            status: "ended",
+            updatedAt: serverTimestamp()
+          });
+        } catch {}
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user || null;
+
+      if (!user) {
+        myProfile = null;
+        chats = [];
+        activeChat = null;
+        activeChatId = null;
+        if (activeChatUnsub) activeChatUnsub();
+        if (messagesUnsub) messagesUnsub();
+        if (callUnsub) callUnsub();
+        cleanupPeer(false);
+        showApp(false);
+        setupProfileBox.classList.add("hide");
+        setAuthMode("login");
+        return;
+      }
+
+      myProfile = await loadMyProfile(user);
+
+      if (!myProfile) {
+        showApp(false);
+        setupProfileBox.classList.remove("hide");
+        authShell.classList.remove("hide");
+        return;
+      }
+
+      setupProfileBox.classList.add("hide");
+      showApp(true);
+      myName.textContent = "@" + myProfile.username;
+      myMail.textContent = user.email || "Google account";
+      await startChatListeners();
+      await renderChatList();
+    });
+
+    function cleanupPeer() {
+      if (offerCandUnsub) {
+        offerCandUnsub();
+        offerCandUnsub = null;
+      }
+      if (answerCandUnsub) {
+        answerCandUnsub();
+        answerCandUnsub = null;
+      }
+      if (pc) {
+        try { pc.close(); } catch {}
+        pc = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach((t) => t.stop());
+        localStream = null;
+      }
+      remoteStream = null;
+      localVideo.srcObject = null;
+      remoteVideo.srcObject = null;
+      currentCallRef = null;
+      currentCallRole = null;
+    }
+  </script>
+</body>
+</html>
